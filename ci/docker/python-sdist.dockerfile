@@ -22,6 +22,13 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN echo "debconf debconf/frontend select Noninteractive" | \
         debconf-set-selections
 
+# archive.ubuntu.com / security.ubuntu.com connections from the GitHub-hosted
+# runners time out; fetch from the Azure mirror the runners use, with retries
+RUN sed -i -e 's|http://archive.ubuntu.com|http://azure.archive.ubuntu.com|g' \
+           -e 's|http://security.ubuntu.com|http://azure.archive.ubuntu.com|g' \
+        /etc/apt/sources.list && \
+    echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80-retries
+
 RUN apt-get update -y -q && \
     apt-get install -y -q --no-install-recommends \
         git \
