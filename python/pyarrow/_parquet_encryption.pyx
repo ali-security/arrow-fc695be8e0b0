@@ -180,8 +180,11 @@ cdef class DecryptionConfiguration(_Weakrefable):
     # Avoid mistakingly creating attributes
     __slots__ = ()
 
-    def __init__(self, *, cache_lifetime=None):
+    def __init__(self, *, cache_lifetime=None,
+                 read_kms_url=None):
         self.configuration.reset(new CDecryptionConfiguration())
+        if read_kms_url is not None:
+            self.read_kms_url = read_kms_url
 
     @property
     def cache_lifetime(self):
@@ -193,6 +196,20 @@ cdef class DecryptionConfiguration(_Weakrefable):
     @cache_lifetime.setter
     def cache_lifetime(self, value):
         self.configuration.get().cache_lifetime_seconds = value.total_seconds()
+
+    @property
+    def read_kms_url(self):
+        """Whether the KMS instance URL may be read from Parquet key material
+        when it is not configured in the KmsConnectionConfig.
+
+        This should only be enabled when the KMS implementation validates the
+        URL it receives, to ensure a KMS access token isn't sent to a malicious
+        URL."""
+        return self.configuration.get().read_kms_url
+
+    @read_kms_url.setter
+    def read_kms_url(self, value):
+        self.configuration.get().read_kms_url = value
 
     cdef inline shared_ptr[CDecryptionConfiguration] unwrap(self) nogil:
         return self.configuration

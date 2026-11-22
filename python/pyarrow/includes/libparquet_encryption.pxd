@@ -83,6 +83,7 @@ cdef extern from "parquet/encryption/crypto_factory.h" \
             " parquet::encryption::DecryptionConfiguration":
         CDecryptionConfiguration() except +
         double cache_lifetime_seconds
+        c_bool read_kms_url
 
     cdef cppclass CCryptoFactory" parquet::encryption::CryptoFactory":
         void RegisterKmsClientFactory(
